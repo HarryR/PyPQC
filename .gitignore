@@ -1,0 +1,6 @@
+*.o
+nistKAT
+*.swp
+*.swo
+*.req
+*.rsp
