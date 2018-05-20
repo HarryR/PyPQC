@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -W -Wall -O0 -ggdb
+CFLAGS = -W -Wall -O4 -ggdb -DBUILD_KEM
 LDFLAGS = -lssl -lcrypto
 CPPFLAGS =
 

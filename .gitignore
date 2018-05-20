@@ -1,5 +1,7 @@
 *.o
 nistKAT
+PQCgenKAT_sign
+pqc_cli
 *.swp
 *.swo
 *.req

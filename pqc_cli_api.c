@@ -69,16 +69,40 @@ static int hex2bin( const char *ptr, unsigned char *output_arg )
 
 static int parse_arg( hexarg_t *arg_spec, const char *arg )
 {
-    if( strlen(arg) != (arg_spec->len / 2) )
+    size_t arg_len = strlen(arg);
+    int do_free = 0;
+
+    if( arg_spec->len == 0 )
+    {
+        arg_spec->len = arg_len / 2;
+        do_free = 1;
+        arg_spec->out = malloc(arg_spec->len);
+    }
+
+    if( (arg_len / 2) != arg_spec->len )
     {
         fprintf(stderr, "Error: arg '%s' expected %lu bytes (hex encoded), got %.1f bytes\n",
-                arg_spec->name, arg_spec->len, strlen(arg) / 2.0);
+                arg_spec->name, arg_spec->len, arg_len / 2.0);
+        
+        if( do_free )
+        {
+            free(arg_spec->out);
+            arg_spec->out = 0;
+        }
+
         return 0;
     }
 
     if( ! hex2bin(arg, arg_spec->out) )
     {
         fprintf(stderr, "Error: parsing arg '%s', hex encoded?\n", arg_spec->name);
+        
+        if( do_free )
+        {
+            free(arg_spec->out);
+            arg_spec->out = 0;
+        }
+
         return 0;
     }
 
@@ -143,13 +167,18 @@ int main( int argc, char **argv )
     RAND_bytes(seed, sizeof(seed));
     randombytes_init(seed, NULL, 256);
 
-    if( 0 == strcmp(argv[1], "kem-gen") )
+    if( 0 == strcmp(argv[1], "help") )
+    {
+
+    }
+#ifdef BUILD_KEM
+    else if( 0 == strcmp(argv[1], "kem-gen") )
     {
         unsigned char out_pk[CRYPTO_PUBLICKEYBYTES];
         unsigned char out_sk[CRYPTO_SECRETKEYBYTES];
 
         if ( (ret_val = crypto_kem_keypair(out_pk, out_sk)) != 0) {
-            printf("crypto_kem_keypair returned <%d>\n", ret_val);
+            fprintf(stderr, "crypto_kem_keypair returned <%d>\n", ret_val);
             exit(6);
         }
 
@@ -177,7 +206,7 @@ int main( int argc, char **argv )
         }
 
         if ( (ret_val = crypto_kem_enc(out_ct, out_ss, arg_pk)) != 0) {
-            printf("crypto_kem_enc returned <%d>\n", ret_val);
+            fprintf(stderr, "crypto_kem_enc returned <%d>\n", ret_val);
             exit(5);
         }
 
@@ -206,7 +235,7 @@ int main( int argc, char **argv )
         }
 
         if ( (ret_val = crypto_kem_dec(out_ss, arg_ct, arg_sk)) != 0) {
-            printf("crypto_kem_dec returned <%d>\n", ret_val);
+            fprintf(stderr, "crypto_kem_dec returned <%d>\n", ret_val);
             exit(7);
         }
 
@@ -214,6 +243,58 @@ int main( int argc, char **argv )
         print_hex(out_ss, sizeof(out_ss));
         printf("\n");
     }
+// BUILD_KEM
+#endif
+#ifdef BUILD_SIGN
+    else if( 0 == strcmp(argv[1], "sign-gen") )
+    {
+        unsigned char out_pk[CRYPTO_PUBLICKEYBYTES];
+        unsigned char out_sk[CRYPTO_SECRETKEYBYTES];
+
+        if ( (ret_val = crypto_sign_keypair(out_pk, out_sk)) != 0) {
+            fprintf(stderr, "crypto_sign_keypair returned <%d>\n", ret_val);
+            exit(7);
+        }
+
+        printf("PK=");
+        print_hex(out_pk, sizeof(out_pk));
+        printf("\n");
+
+        printf("SK=");
+        print_hex(out_sk, sizeof(out_sk));
+        printf("\n");
+    }
+    else if( 0 == strcmp(argv[1], "sign") )
+    {
+        unsigned char arg_sk[CRYPTO_SECRETKEYBYTES];
+        unsigned char *out_sm = 0;
+        unsigned long long out_smlen = 0;
+
+
+        hexarg_t arg_spec[] = {
+            {"sk", sizeof(arg_sk), arg_sk},
+            {"m", 0, 0},
+        };
+
+        if( ! parse_args(argc-2, &argv[2], 2, arg_spec) )
+        {
+            exit(3);
+        }
+
+        out_sm = (unsigned char *)calloc(arg_spec[1].len + CRYPTO_BYTES, sizeof(unsigned char));
+
+        if ( (ret_val = crypto_sign(out_sm, &out_smlen, arg_spec[1].out, arg_spec[1].len, arg_sk)) != 0)
+        {
+            fprintf(stderr, "crypto_sign returned <%d>\n", ret_val);
+            exit(8);
+        }
+
+        printf("SM=");
+        print_hex(out_sm, sizeof(out_smlen));
+        printf("\n");
+    }
+// BUILD_SIGN
+#endif
     else
     {
         fprintf(stderr, "Error: Unknown operation '%s'\n", argv[1]);
