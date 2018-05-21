@@ -1,7 +1,7 @@
 CC = /usr/bin/gcc
 CFLAGS = -Wall -Wextra -Wpedantic -O3 -DBUILD_SIGN
 LDLIBS += -lcrypto
-HASH_C = hash_shake256.c
+HASH_C = hash_haraka.c
 
 SOURCES =          $(HASH_C) hash_address.c rng.c wots.c utils.c fors.c sign.c
 HEADERS = params.h hash.h    hash_address.h rng.h wots.h utils.h fors.h api.h

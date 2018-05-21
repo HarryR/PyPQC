@@ -294,7 +294,7 @@ int cmd_sign_gen( int argc, char **argv )
 
     return 0;
 }
-
+ 
 
 int cmd_sign( int argc, char **argv )
 {
@@ -322,8 +322,10 @@ int cmd_sign( int argc, char **argv )
     }
 
     printf("SM=");
-    print_hex(out_sm, sizeof(out_smlen));
+    print_hex(out_sm, out_smlen);
     printf("\n");
+
+    free(out_sm);
 
     return 0;
 }
@@ -331,6 +333,34 @@ int cmd_sign( int argc, char **argv )
 
 int cmd_sign_open( int argc, char **argv )
 {
+    int ret_val;
+    unsigned char arg_pk[CRYPTO_PUBLICKEYBYTES];
+    unsigned char *out_m = 0;
+    unsigned long long out_mlen = 0;
+
+    hexarg_t arg_spec[] = {
+        {"pk", sizeof(arg_pk), arg_pk},
+        {"sm", 0, 0},
+    };
+
+    if( ! parse_args(argc, argv, 2, arg_spec) )
+    {
+        exit(3);
+    }
+
+    out_m = (unsigned char *)calloc(arg_spec[1].len, sizeof(unsigned char));
+
+    if ( (ret_val = crypto_sign_open(out_m, &out_mlen, arg_spec[1].out, arg_spec[1].len, arg_pk)) != 0) {
+        fprintf(stderr, "crypto_sign_open returned <%d>\n", ret_val);
+        return 4;
+    }
+
+    printf("M=");
+    print_hex(out_m, out_mlen);
+    printf("\n");
+
+    free(out_m);
+
     return 0;
 }
 
