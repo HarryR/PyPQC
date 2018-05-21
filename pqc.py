@@ -34,7 +34,6 @@ class PQCKEM(PQCBase):
 
 	def encaps(self, pk):
 		res = self.api('kem-enc', pk)
-		print(res)
 		return res['CT'], res['SS']
 
 	def decaps(self, ct, sk):
@@ -57,6 +56,22 @@ class PQCSign(PQCBase):
 
 
 if __name__ == "__main__":
+	if len(sys.argv) >= 2 and sys.argv[1] == 'test':
+		x = PQCKEM('./NTRU-HRSS-KEM-20171130/Optimized_Implementation/crypto_kem/ntruhrss701/pqc_cli')
+		pk, sk = x.keypair()
+		ct, ss = x.encaps(pk)
+		check_ss = x.decaps(ct, sk)
+		assert ss == check_ss
+
+		x = PQCSign('./sphincs+-reference-implementation-20180313/crypto_sign/sphincs-haraka-128s/pqc_cli')
+		pk, sk = x.keypair()
+		msg = os.urandom(128)
+		smsg = x.sign(sk, msg)
+		cmsg = x.open(pk, smsg)
+		assert msg == cmsg
+
+		sys.exit(0)
+
 	if len(sys.argv) < 3:
 		print("Usage: %s <./path/to/pqc_cli> cmd [arg [arg ...]]" % (sys.argv[0],))
 		sys.exit(1)
@@ -65,18 +80,3 @@ if __name__ == "__main__":
 
 	for k, v in res.items():
 		print(k, '=', v.encode('hex'))
-
-	x = PQCKEM('./BIG_QUAKE/Reference_Implementation/BIG_QUAKE_5/nistKAT')
-	pk, sk = x.keypair()
-	ct, ss = x.encaps(pk)
-	check_ss = x.decaps(ct, sk)
-	assert ss == check_ss
-
-	sys.exit(0)
-
-	x = PQCSign('./sphincs+-reference-implementation-20180313/crypto_sign/sphincs-haraka-128s/pqc_cli')
-	pk, sk = x.keypair()
-	msg = os.urandom(128)
-	smsg = x.sign(sk, msg)
-	cmsg = x.open(pk, smsg)
-	assert msg == cmsg
