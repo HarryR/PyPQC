@@ -24,6 +24,23 @@ class PQCBase(object):
 		return pqc_cli_api(self._cli_path, cmd, *args)
 
 
+class PQCKEM(PQCBase):
+	def __init__(self, cli_path):
+		super(PQCKEM, self).__init__(cli_path)
+
+	def keypair(self):
+		res = self.api('kem-gen')
+		return res['PK'], res['SK']
+
+	def encaps(self, pk):
+		res = self.api('kem-enc', pk)
+		print(res)
+		return res['CT'], res['SS']
+
+	def decaps(self, ct, sk):
+		return self.api('kem-dec', ct, sk)['SS']
+
+
 class PQCSign(PQCBase):
 	def __init__(self, cli_path):
 		super(PQCSign, self).__init__(cli_path)
@@ -49,9 +66,17 @@ if __name__ == "__main__":
 	for k, v in res.items():
 		print(k, '=', v.encode('hex'))
 
-	x = PQCSign(sys.argv[1])
+	x = PQCKEM('./BIG_QUAKE/Reference_Implementation/BIG_QUAKE_5/nistKAT')
+	pk, sk = x.keypair()
+	ct, ss = x.encaps(pk)
+	check_ss = x.decaps(ct, sk)
+	assert ss == check_ss
+
+	sys.exit(0)
+
+	x = PQCSign('./sphincs+-reference-implementation-20180313/crypto_sign/sphincs-haraka-128s/pqc_cli')
 	pk, sk = x.keypair()
 	msg = os.urandom(128)
 	smsg = x.sign(sk, msg)
 	cmsg = x.open(pk, smsg)
-	print(msg == cmsg)
+	assert msg == cmsg

@@ -164,6 +164,12 @@ void print_hex (unsigned char *data, size_t n)
 int cmd_params( int argc, char **argv )
 {
     printf("ALGNAME=%s\n", CRYPTO_ALGNAME);
+#ifdef BUILD_SIGN
+    printf("SIGN=1\n");
+#endif
+#ifdef BUILD_KEM
+    printf("KEM=1\n");
+#endif
 #ifdef CRYPTO_SECRETKEYBYTES
     printf("CRYPTO_SECRETKEYBYTES=%d\n", CRYPTO_SECRETKEYBYTES);
 #endif
