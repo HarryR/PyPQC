@@ -57,11 +57,17 @@ class PQCSign(PQCBase):
 
 if __name__ == "__main__":
 	if len(sys.argv) >= 2 and sys.argv[1] == 'test':
-		x = PQCKEM('./NTRU-HRSS-KEM-20171130/Optimized_Implementation/crypto_kem/ntruhrss701/pqc_cli')
-		pk, sk = x.keypair()
-		ct, ss = x.encaps(pk)
-		check_ss = x.decaps(ct, sk)
-		assert ss == check_ss
+		kem_list = [
+			'./NTRU-HRSS-KEM-20171130/Optimized_Implementation/crypto_kem/ntruhrss701/pqc_cli',
+			'./SIKE/Optimized_Implementation/portable/SIKEp503/pqc_cli'
+		]
+		for kem in kem_list:
+			print("Testing", kem)
+			x = PQCKEM(kem)
+			pk, sk = x.keypair()
+			ct, ss = x.encaps(pk)
+			check_ss = x.decaps(ct, sk)
+			assert ss == check_ss
 
 		x = PQCSign('./sphincs+-reference-implementation-20180313/crypto_sign/sphincs-haraka-128s/pqc_cli')
 		pk, sk = x.keypair()
