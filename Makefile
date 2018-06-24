@@ -8,3 +8,6 @@ all: $(ALGOS) test
 
 test:
 	$(PYTHON) pqc.py test
+
+clean:
+	rm -f $(ALGOS)

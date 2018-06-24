@@ -1,5 +1,5 @@
 CC = /usr/bin/gcc
-CFLAGS = -Wall -Wextra -Wpedantic -O3 -DBUILD_SIGN
+CFLAGS = -Wall -Wextra -Wpedantic -O3 -DBUILD_SIGN -std=gnu99
 LDLIBS += -lcrypto
 HASH_C = hash_shake256.c
 
