@@ -2,9 +2,12 @@
 
 This project provides Python and command-line wrappers for the NIST Post-Quantum Cryptography submissions, see: https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Round-1-Submissions 
 
-[![Build Status](https://travis-ci.org/HarryR/PyPQC.svg?branch=master)](https://travis-ci.org/HarryR/PyPQC)
+It serves to make the Round 1 submissions more accessible to developers, and should allow you to experiment and prototype with them very quickly in Python or other languages, without having to write C code, create shared objects or DLLs or lock yourself into one specific algorithm (e.g. when Round 2 happens).
+
 
 ## Build
+
+[![Build Status](https://travis-ci.org/HarryR/PyPQC.svg?branch=master)](https://travis-ci.org/HarryR/PyPQC)
 
 Required packages:
 
@@ -18,9 +21,10 @@ make
 
 ## Example
 
-The two classes, `PQCKEM` and `PQCSign`, provide an interface to the `pqc_cli` executable. You must provide it with the full path of the executable as the constructor argument.
+The two classes, `PQCKEM` and `PQCSign`, provide an interface to the `pqc_cli` executable. You must provide it with the full path of the executable as the constructor argument. Each submission is modified slightly to build its own `pqc_cli` executable.
 
 If the algorithm supports both Key Exchange and Signing, it's not guaranteed that key pairs generated for one are compatible with the other.
+
 
 ### Key Exchange
 
@@ -37,6 +41,8 @@ assert ss == check_ss
 ```
 
 ### Message Signing
+
+Allows the owner of a key pair to create a signed message which can only be opened if the decrypter knows the public key. An alternative interpretation is that with knowledge of a public key the authenticity of a signed message can be verified as having been created by the holder of the secret key.
 
 ```
 x = PQCSign(sign_path)
@@ -64,6 +70,7 @@ To add support for an additional algorithm, follow these steps:
 
  * https://cryptojedi.org/peter/data/nancy-20180219.pdf (Peter Schwabe)
  * https://csrc.nist.gov/CSRC/media/Presentations/PostQuantum-RSA/images-media/PostQuantumRSA-April2018.pdf
+
 
 ## Talking Points
 
