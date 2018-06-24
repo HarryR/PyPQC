@@ -3,6 +3,7 @@ nistKAT
 PQCgenKAT_sign
 PQCgenKAT_kem
 pqc_cli
+*.pyc
 *.swp
 *.swo
 *.req
