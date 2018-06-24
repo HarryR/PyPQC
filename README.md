@@ -2,12 +2,19 @@
 
 This project provides Python and command-line wrappers for the NIST Post-Quantum Cryptography submissions, see: https://csrc.nist.gov/Projects/Post-Quantum-Cryptography/Round-1-Submissions
 
+[![Build Status](https://travis-ci.org/HarryR/PyPQC.svg?branch=master)](https://travis-ci.org/HarryR/PyPQC)
+
 ## Build
 
 Required packages:
 
   * openssl-devel
-  * gmp-devel
+
+Then build with:
+
+```
+make
+```
 
 ## Notes
 
